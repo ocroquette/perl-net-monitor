@@ -2,7 +2,17 @@
 
 use Data::Dumper;
 
+use Sensors::Http;
+use Exporter 'import';
+
 my @sensors;
+
+sub requireClass {
+    my ($class) = @_;
+    (my $file = $class) =~ s|::|/|g;
+    $file .= '.pm';
+    require $file;
+}
 
 sub readConfig {
   my $path = "monitor.cfg";
@@ -15,6 +25,7 @@ sub readConfig {
     my $freq = shift @fields;
     my $sensor = { type => $type, frequency => $freq , parameters => \@fields};
     print Dumper($sensor);
+    requireClass("Sensors::".$type);
   }
 }
 
