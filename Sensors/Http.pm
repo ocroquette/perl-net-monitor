@@ -13,25 +13,26 @@ sub configure {
   $self->{host} = shift;
 }
 
-sub do {
+sub check {
   my $self = shift;
-  # $self->log("Http", "OK", $self->{host});
   
   my $socket = IO::Socket::INET->new(
     PeerAddr => $self->{host},
     PeerPort => 80,
     Proto    => 'tcp',
-  ) or die("Error :: $!");
+  ) || return 0;
 
   print($socket "GET / HTTP/1.1\n");
   print($socket "Host: " . $self->{host} ."\n");
   print($socket "\n");
   my $received = <$socket>;
-  # print $received;
-
   
-  my $status = ( $received =~ /^HTTP.... [23]/ ? "OK" : "NOK" );
-  $self->log("Http", $status, $self->{host});
+  return ( $received =~ /^HTTP.... [23]/ ? "OK" : "NOK" );
 }
 
+sub do {
+  my $self = shift;
+  my $status = ( $self->check() ? "OK" : "NOK");
+  $self->log("Http", $status, $self->{host});
+}
 1;
