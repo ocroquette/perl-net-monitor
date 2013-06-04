@@ -40,7 +40,7 @@ sub readConfig {
     $sensor->{obj}->configure(@{$sensor->{parameters}});
     $sensor->{obj}->setLogger($logger);
     
-    print Dumper($sensor);
+    # print Dumper($sensor);
     
     push @sensors, $sensor;
   }
@@ -56,7 +56,6 @@ sub sleepUntilNextEvent {
       $result = $delta;
     }
   }
-  print "sleeping for $result s\n";
   sleep $result;
 }
 
