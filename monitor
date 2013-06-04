@@ -47,6 +47,17 @@ sub readConfig {
 }
 
 sub sleepUntilNextEvent {
+  my $timeReference = shift;
+  my $result = 0;
+  foreach my $sensor (@sensors) {
+    my $nextTime = $sensor->{timestamp} + $sensor->{period};
+    my $delta = $nextTime - $timeReference;
+    if ( $delta < $result || ! $result ) {
+      $result = $delta;
+    }
+  }
+  print "sleeping for $result s\n";
+  sleep $result;
 }
 
 sub runSensors {
