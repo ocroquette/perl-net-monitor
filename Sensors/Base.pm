@@ -3,7 +3,9 @@ package Sensors::Base;
 use strict;
 use Carp;
 
-sub new       { croak "Not implemented" };
+sub new       {
+  croak "Not implemented";
+};
 
 sub setLogger {
   my $self = shift;

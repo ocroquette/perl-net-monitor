@@ -4,8 +4,10 @@ use Data::Dumper;
 
 use Sensors::Http;
 use Exporter 'import';
+use Logger;
 
 my @sensors;
+my $logger = Logger->new();
 
 sub requireClass {
     my ($class) = @_;
@@ -22,11 +24,49 @@ sub readConfig {
     chomp $line;
     my @fields = split(/\s+/, $line);
     my $type = shift @fields;
-    my $freq = shift @fields;
-    my $sensor = { type => $type, frequency => $freq , parameters => \@fields};
+    my $period = shift @fields;
+
+    my $class = "Sensors::".$type;
+    requireClass($class);
+
+    my $sensor = {
+      type        => $type,
+      period      => $period,
+      timestamp   => 0,
+      parameters  => \@fields,
+      obj         => $class->new()
+    };
+
+    $sensor->{obj}->configure(@{$sensor->{parameters}});
+    $sensor->{obj}->setLogger($logger);
+    
     print Dumper($sensor);
-    requireClass("Sensors::".$type);
+    
+    push @sensors, $sensor;
+  }
+}
+
+sub sleepUntilNextEvent {
+}
+
+sub runSensors {
+  my $timeReference = shift;
+  croak if ! $timeReference;
+  foreach my $sensor (@sensors) {
+    if ( (  $timeReference - $sensor->{timestamp} ) >= $sensor->{period} ) {
+      $sensor->{obj}->do();
+      $sensor->{timestamp} = $timeReference;
+    }
+  }
+}
+
+sub run {
+  while (1) {
+    my $timeReference = time();
+    runSensors($timeReference);    
+    sleepUntilNextEvent($timeReference);
   }
 }
 
 readConfig();
+run();
