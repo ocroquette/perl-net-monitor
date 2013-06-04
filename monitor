@@ -1,0 +1,21 @@
+#!/usr/bin/env perl
+
+use Data::Dumper;
+
+my @sensors;
+
+sub readConfig {
+  my $path = "monitor.cfg";
+  my $fd;
+  open $fd, "<$path" || die "Unable to open configuration file: $path";
+  while (my $line = <$fd> ) {
+    chomp $line;
+    my @fields = split(/\s+/, $line);
+    my $type = shift @fields;
+    my $freq = shift @fields;
+    my $sensor = { type => $type, frequency => $freq , parameters => \@fields};
+    print Dumper($sensor);
+  }
+}
+
+readConfig();
