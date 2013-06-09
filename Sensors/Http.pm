@@ -25,6 +25,9 @@ sub check {
   print($socket "GET / HTTP/1.1\n");
   print($socket "Host: " . $self->{host} ."\n");
   print($socket "\n");
+
+  $socket->timeout(2);
+
   my $received = <$socket>;
   
   return ( $received =~ /^HTTP.... [23]/ ? "OK" : "NOK" );

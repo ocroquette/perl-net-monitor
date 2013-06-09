@@ -21,7 +21,7 @@ sub do {
 
 sub check {
   my $self = shift;
-  my @cmd = qw/ping -o -c 1 -t 2/;
+  my @cmd = qw/ping -o -c 1 -t 5/;
   push @cmd, $self->{host};
 
   # Discard STDOUT
