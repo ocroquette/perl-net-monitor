@@ -15,7 +15,20 @@ sub configure {
 
 sub check {
   my $self = shift;
-  
+
+  my $received;
+  eval {
+    local $SIG{ALRM} = sub { die 'Http connection timed out'; };
+    alarm 5;
+    $received = $self->fetchData();
+    alarm 0;
+  };  
+  return ( $received =~ /^HTTP.... [23]/ );
+}
+
+sub fetchData {
+  my $self = shift;
+
   my $socket = IO::Socket::INET->new(
     PeerAddr => $self->{host},
     PeerPort => 80,
@@ -26,11 +39,9 @@ sub check {
   print($socket "Host: " . $self->{host} ."\n");
   print($socket "\n");
 
-  $socket->timeout(2);
+  $socket->timeout(1);
 
-  my $received = <$socket>;
-  
-  return ( $received =~ /^HTTP.... [23]/ ? "OK" : "NOK" );
+  return <$socket>;
 }
 
 sub do {
